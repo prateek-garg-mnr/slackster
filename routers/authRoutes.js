@@ -14,6 +14,9 @@ module.exports = (app) => {
         `https://slack.com/api/oauth.v2.access?code=${code}&client_id=${keys.slackClientId}&client_secret=${keys.slackClientSecret}&redirect_uri=${keys.redirect_uri}`
       );
       console.log(response);
+      if (!response.data.authed_user.access_token) {
+        return res.status(400).send(response.data);
+      }
       // slack oauth token
       const access_token = response.data.authed_user.access_token;
       // clack web client initialization
@@ -45,7 +48,9 @@ module.exports = (app) => {
       // return user
       res.send(user);
     } catch (e) {
-      console.log(e);
+      // log error
+      console.log("Token/ User Create API ERR:", e);
+      res.status(500).send();
     }
   });
 };
