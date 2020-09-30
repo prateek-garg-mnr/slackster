@@ -5,4 +5,5 @@ module.exports = {
   slackBotToken: process.env.SLACK_BOT_TOKEN,
   cookieKey: process.env.COOKIE_KEY,
   mongodbURL: process.env.MONGODB_URL,
+  redirect_uri: process.env.REDIRECT_URI,
 };
