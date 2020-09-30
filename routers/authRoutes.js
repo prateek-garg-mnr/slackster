@@ -13,8 +13,7 @@ module.exports = (app) => {
       const response = await axios.get(
         `https://slack.com/api/oauth.v2.access?code=${code}&client_id=${keys.slackClientId}&client_secret=${keys.slackClientSecret}&redirect_uri=${keys.redirect_uri}`
       );
-      console.log(response);
-      if (!response.data.authed_user.access_token) {
+      if (response.data.authed_user === undefined) {
         return res.status(400).send(response.data);
       }
       // slack oauth token
