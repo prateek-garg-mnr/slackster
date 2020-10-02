@@ -104,4 +104,34 @@ module.exports = (app) => {
       res.status(500).send({ message: "Internal Server Error" });
     }
   });
+
+  // list of scheduled message
+  app.get("/api/schedule-message", auth, async (req, res) => {
+    try {
+      let token;
+      // data from query string
+      const { type } = req.query;
+      // decide which token to use on the basis of type
+      if (type === "user") {
+        token = req.user.oauthToken;
+      } else {
+        token = keys.slackBotToken;
+      }
+      // slack client
+      const web = new WebClient(token);
+      // list of scheduled messages
+      const response = await web.chat.scheduledMessages.list();
+      // response
+      res.send({ response });
+    } catch (e) {
+      // error
+      console.log("Schedule Message error: ", e);
+      // error from axios
+      if (e.data.ok === false) {
+        return res.status(400).send({ message: "invalid request" });
+      }
+      // other server error
+      res.status(500).send({ message: "Internal Server Error" });
+    }
+  });
 };
