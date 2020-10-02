@@ -19,7 +19,10 @@ module.exports = (app) => {
       await req.user.save();
       res.send({ list: relevantConvoData });
     } catch (e) {
-      console.log(e);
+      console.log("Send Instant Message error: ", e);
+      if (e.data.ok === false) {
+        return res.status(400).send({ message: "invalid request" });
+      }
       res.status(500).send({ message: "Internal Server Error" });
     }
   });
@@ -43,6 +46,7 @@ module.exports = (app) => {
       });
       res.send({ response });
     } catch (e) {
+      console.log("Send Instant Message error: ", e);
       if (e.data.ok === false) {
         return res.status(400).send({ message: "invalid request" });
       }
