@@ -6,4 +6,5 @@ module.exports = {
   cookieKey: process.env.COOKIE_KEY,
   mongodbURL: process.env.MONGODB_URL,
   redirect_uri: process.env.REDIRECT_URI,
+  jwtEncryptionKey: process.env.JWT_ENCRYPTION_KEY,
 };

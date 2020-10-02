@@ -3,6 +3,7 @@ const axios = require("axios");
 const keys = require("../config/keys");
 const { WebClient } = require("@slack/web-api");
 const generateJWT = require("../services/generateJWT");
+const auth = require("../middleware/auth");
 module.exports = (app) => {
   // Register user
   app.post("/api/slack-token", async (req, res) => {
@@ -36,7 +37,7 @@ module.exports = (app) => {
         // return user
         return res.send({ user: existingUser, token });
       }
-      // creating new user;s instance
+      // creating new user's instance
       const user = new User({
         name: name,
         email: email,
@@ -55,4 +56,8 @@ module.exports = (app) => {
       res.status(500).send();
     }
   });
+  // test api
+  // app.get("/test", auth, (req, res) => {
+  //   res.send(req.user);
+  // });
 };
