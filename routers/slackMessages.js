@@ -3,6 +3,8 @@ const axios = require("axios");
 const { WebClient } = require("@slack/web-api");
 // auth middleware
 const auth = require("../middleware/auth");
+// config keys
+const keys = require("../config/keys");
 
 module.exports = (app) => {
   // conversation list of user
@@ -18,25 +20,36 @@ module.exports = (app) => {
       res.send({ list: relevantConvoData });
     } catch (e) {
       console.log(e);
+      res.status(500).send({ message: "Internal Server Error" });
     }
   });
 
   // send a message instantly to a channel
-  // app.post("/api/send-message", requireLogin, async (req, res) => {
-  //   try {
-  //     const web = new WebClient(req.user.oauthToken);
-  //     // const web = new WebClient(
-  //     //   "xoxp-1364451180086-1371181799874-1370047169429-d90fc4570c2f558f33eebbff74becae0"
-  //     // );
-  //     const resp = await web.chat.postMessage({
-  //       text: req.body.message,
-  //       channel: req.body.channelId,
-  //     });
-  //     res.send({ resp });
-  //   } catch (e) {
-  //     console.log(e);
-  //   }
-  // });
+  app.post("/api/send-message", auth, async (req, res) => {
+    try {
+      let token;
+      const { message, channelId, type } = req.body;
+      if (type === "user") {
+        token = req.user.oauthToken;
+      } else {
+        token = keys.slackBotToken;
+      }
+      console.log(token);
+      const web = new WebClient(token);
+
+      const response = await web.chat.postMessage({
+        text: message,
+        channel: channelId,
+      });
+      res.send({ response });
+    } catch (e) {
+      if (e.data.ok === false) {
+        return res.status(400).send({ message: "invalid request" });
+      }
+      res.status(500).send({ message: "Internal Server Error" });
+    }
+  });
+
   // schedule a message
   // app.post("/api/schedule-message", async (req, res) => {
   //   try {
