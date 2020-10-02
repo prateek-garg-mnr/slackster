@@ -2,7 +2,7 @@ const User = require("../models/User");
 const axios = require("axios");
 const keys = require("../config/keys");
 const { WebClient } = require("@slack/web-api");
-
+const generateJWT = require("../services/generateJWT");
 module.exports = (app) => {
   // Register user
   app.post("/api/slack-token", async (req, res) => {
@@ -31,8 +31,10 @@ module.exports = (app) => {
         existingUser.oauthToken = access_token;
         // save user
         await existingUser.save();
+        // generate jwt token
+        const token = await generateJWT({ id: existingUser._id });
         // return user
-        return res.send(existingUser);
+        return res.send({ user: existingUser, token });
       }
       // creating new user;s instance
       const user = new User({
@@ -44,8 +46,9 @@ module.exports = (app) => {
       });
       // save user
       await user.save();
+      const token = await generateJWT({ id: user._id });
       // return user
-      res.send(user);
+      res.send({ user, token });
     } catch (e) {
       // log error
       console.log("Token/ User Create API ERR:", e);
