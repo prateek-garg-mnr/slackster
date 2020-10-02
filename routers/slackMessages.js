@@ -10,19 +10,28 @@ module.exports = (app) => {
   // conversation list of user
   app.get("/api/conversation-list", auth, async (req, res) => {
     try {
+      // slack web client instanve
       const web = new WebClient(req.user.oauthToken);
+      // list of all the channels
       const list = await web.conversations.list();
+      // select only name and id of channel
       const relevantConvoData = await list.channels.map((channel) => {
         return { channelId: channel.id, channelName: channel.name };
       });
+      // save channel list on user
       req.user.userChannels = relevantConvoData;
+      // save user
       await req.user.save();
+      // response
       res.send({ list: relevantConvoData });
     } catch (e) {
-      console.log("Send Instant Message error: ", e);
+      // error
+      console.log("Conversation List error: ", e);
+      // error from axios
       if (e.data.ok === false) {
         return res.status(400).send({ message: "invalid request" });
       }
+      // other server error
       res.status(500).send({ message: "Internal Server Error" });
     }
   });
@@ -31,46 +40,68 @@ module.exports = (app) => {
   app.post("/api/send-message", auth, async (req, res) => {
     try {
       let token;
+      // data from request's body
       const { message, channelId, type } = req.body;
+      // decide which token to use on the basis of type
       if (type === "user") {
         token = req.user.oauthToken;
       } else {
         token = keys.slackBotToken;
       }
-      console.log(token);
+      // slack client
       const web = new WebClient(token);
-
+      // post the message instantly
       const response = await web.chat.postMessage({
         text: message,
         channel: channelId,
       });
+      // response
       res.send({ response });
     } catch (e) {
+      // error
       console.log("Send Instant Message error: ", e);
+      // error from axios
       if (e.data.ok === false) {
         return res.status(400).send({ message: "invalid request" });
       }
+      // other server error
       res.status(500).send({ message: "Internal Server Error" });
     }
   });
 
   // schedule a message
-  // app.post("/api/schedule-message", async (req, res) => {
-  //   try {
-  //     const web = new WebClient(req.user.oauthToken);
-  //     const time = new Date();
-  //     // await time.setHours(3, 16, 0);
-  //     // const web = new WebClient();
-  //     // "xoxp-1364451180086-1371181799874-1370047169429-d90fc4570c2f558f33eebbff74becae0"
-  //     // "xoxb-1364451180086-1396669512496-pAEA0JnpOB5Gx4O04rtQpmMv"
-  //     const resp = await web.chat.scheduleMessage({
-  //       text: "Hello world! scheduled",
-  //       channel: "C01B9PV249X",
-  //       post_at: time.getTime() / 1000,
-  //     });
-  //     res.send({ resp });
-  //   } catch (e) {
-  //     console.log(e);
-  //   }
-  // });
+  app.post("/api/schedule-message", auth, async (req, res) => {
+    try {
+      let token;
+      // data from request's body
+      const { message, channelId, type, time } = req.body;
+      // decide which token to use on the basis of type
+      if (type === "user") {
+        token = req.user.oauthToken;
+      } else {
+        token = keys.slackBotToken;
+      }
+      // set schedule time
+      const messageScheduleTime = new Date(time).getTime();
+      // slack client
+      const web = new WebClient(token);
+      // schedule message to be sent
+      const response = await web.chat.scheduleMessage({
+        text: message,
+        channel: channelId,
+        post_at: messageScheduleTime / 1000,
+      });
+      // response
+      res.send({ response });
+    } catch (e) {
+      // error
+      console.log("Schedule Message error: ", e);
+      // error from axios
+      if (e.data.ok === false) {
+        return res.status(400).send({ message: "invalid request" });
+      }
+      // other server error
+      res.status(500).send({ message: "Internal Server Error" });
+    }
+  });
 };

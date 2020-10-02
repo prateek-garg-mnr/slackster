@@ -63,7 +63,8 @@ module.exports = (app) => {
     }
   });
   // test api
-  app.get("/test", auth, (req, res) => {
-    res.send(req.user);
-  });
+  // app.post("/test", (req, res) => {
+  //   console.log(req.body);
+  //   res.send(req.body);
+  // });
 };
