@@ -1,9 +1,15 @@
-const User = require("../models/User");
 const axios = require("axios");
+// User model
+const User = require("../models/User");
+// config keys
 const keys = require("../config/keys");
+// slack web client
 const { WebClient } = require("@slack/web-api");
+// JWT generator
 const generateJWT = require("../services/generateJWT");
+// auth middleware
 const auth = require("../middleware/auth");
+
 module.exports = (app) => {
   // Register user
   app.post("/api/slack-token", async (req, res) => {
@@ -57,7 +63,7 @@ module.exports = (app) => {
     }
   });
   // test api
-  // app.get("/test", auth, (req, res) => {
-  //   res.send(req.user);
-  // });
+  app.get("/test", auth, (req, res) => {
+    res.send(req.user);
+  });
 };

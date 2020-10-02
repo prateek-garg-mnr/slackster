@@ -1,22 +1,26 @@
-// slack aoi client
+const axios = require("axios");
+// slack web client
 const { WebClient } = require("@slack/web-api");
-// login check middleware
+// auth middleware
+const auth = require("../middleware/auth");
+
 module.exports = (app) => {
   // conversation list of user
-  // app.get("/api/conversation-list", async (req, res) => {
-  //   try {
-  //     const web = new WebClient(req.user.oauthToken);
-  //     const list = await web.conversations.list();
-  //     const relevantConvoData = await list.channels.map((channel) => {
-  //       return { channelId: channel.id, channelName: channel.name };
-  //     });
-  //     req.user.userChannels = relevantConvoData;
-  //     await req.user.save();
-  //     res.send({ list: relevantConvoData });
-  //   } catch (e) {
-  //     console.log(e);
-  //   }
-  // });
+  app.get("/api/conversation-list", auth, async (req, res) => {
+    try {
+      const web = new WebClient(req.user.oauthToken);
+      const list = await web.conversations.list();
+      const relevantConvoData = await list.channels.map((channel) => {
+        return { channelId: channel.id, channelName: channel.name };
+      });
+      req.user.userChannels = relevantConvoData;
+      await req.user.save();
+      res.send({ list: relevantConvoData });
+    } catch (e) {
+      console.log(e);
+    }
+  });
+
   // send a message instantly to a channel
   // app.post("/api/send-message", requireLogin, async (req, res) => {
   //   try {

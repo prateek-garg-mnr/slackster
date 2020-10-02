@@ -25,7 +25,7 @@ app.use(bodyParser.json());
 // auth routes
 require("./routers/authRoutes")(app);
 // slack messages route
-// require("./routers/slackMessages")(app);
+require("./routers/slackMessages")(app);
 
 // PORT
 const PORT = process.env.PORT || 5000;
