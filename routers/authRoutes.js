@@ -55,16 +55,20 @@ module.exports = (app) => {
       await user.save();
       const token = await generateJWT({ id: user._id });
       // return user
-      res.send({ user, token });
+      res.send({ token });
     } catch (e) {
       // log error
       console.log("Token/ User Create API ERR:", e);
       res.status(500).send();
     }
   });
-  // test api
-  // app.post("/test", (req, res) => {
-  //   console.log(req.body);
-  //   res.send(req.body);
-  // });
+
+  // Get User
+  app.get("/api/user", auth, async (req, res) => {
+    try {
+      res.send({ user: req.user });
+    } catch (e) {
+      res.status(500).send();
+    }
+  });
 };
