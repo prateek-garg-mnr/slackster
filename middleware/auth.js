@@ -15,7 +15,6 @@ module.exports = async (req, res, next) => {
     req.user = user;
     next();
   } catch (e) {
-    console.log(e);
     return res.status(401).send({ message: "Please Authenticate Perfect" });
   }
 };

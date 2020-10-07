@@ -8,6 +8,7 @@ const userSchema = new Schema({
   slackId: String,
   oauthToken: String,
   userChannels: Array,
+  personalDM: Array,
   profilePicture: String,
 });
 

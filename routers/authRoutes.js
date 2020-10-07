@@ -66,6 +66,17 @@ module.exports = (app) => {
   // Get User
   app.get("/api/user", auth, async (req, res) => {
     try {
+      // clack web client initialization
+      const web = new WebClient(req.user.oauthToken);
+      const response = await web.users.info({
+        user: req.user.slackId,
+      });
+      const { id, name } = response.user;
+      const { image_512 } = response.user.profile;
+      req.user.slackId = id;
+      req.user.name = name;
+      req.user.profilePicture = image_512;
+      await req.user.save();
       res.send({ user: req.user });
     } catch (e) {
       res.status(500).send();

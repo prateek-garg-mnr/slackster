@@ -13,17 +13,44 @@ module.exports = (app) => {
       // slack web client instanve
       const web = new WebClient(req.user.oauthToken);
       // list of all the channels
-      const list = await web.conversations.list();
-      // select only name and id of channel
-      const relevantConvoData = await list.channels.map((channel) => {
-        return { channelId: channel.id, channelName: channel.name };
+      const list = await web.conversations.list({
+        types: `public_channel,private_channel,im`,
       });
+      // select only name and id of channel
+      let channelData = await list.channels
+        .map((channel) => {
+          if (channel.name) {
+            return { channelId: channel.id, channelName: channel.name };
+          }
+          return;
+        })
+        .filter((channel) => {
+          if (channel !== null) {
+            return channel;
+          }
+        });
+
+      const personalDM = await list.channels
+        .map((channel) => {
+          if (!channel.name) {
+            return { channelId: channel.id };
+          }
+        })
+        .filter((channel) => {
+          if (channel !== null) {
+            return channel;
+          }
+        });
+      console.log(personalDM);
+
       // save channel list on user
-      req.user.userChannels = relevantConvoData;
+      req.user.userChannels = channelData;
+      // save personal dm list on user
+      req.user.personalDM = personalDM;
       // save user
       await req.user.save();
       // response
-      res.send({ list: relevantConvoData });
+      res.send({ channellist: channelData, dmList: personalDM });
     } catch (e) {
       // error
       console.log("Conversation List error: ", e);
