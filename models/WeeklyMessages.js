@@ -24,9 +24,6 @@ const weeklyMessageSchema = new Schema(
   }
 );
 
-const weeklyMessage = mongoose.model(
-  "weeklyMessageSchema",
-  weeklyMessageSchema
-);
+const weeklyMessage = mongoose.model("weeklyMessage", weeklyMessageSchema);
 
 module.exports = weeklyMessage;

@@ -18,9 +18,6 @@ const instantMessageSchema = new Schema(
   { timestamps: true }
 );
 
-const instantMessage = mongoose.model(
-  "instantMessageSchema",
-  instantMessageSchema
-);
+const instantMessage = mongoose.model("instantMessage", instantMessageSchema);
 
 module.exports = instantMessage;
