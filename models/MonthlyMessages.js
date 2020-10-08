@@ -14,6 +14,10 @@ const monthlyMessageSchema = new Schema(
       required: true,
       trim: true,
     },
+    date: {
+      type: Date,
+      required: true,
+    },
   },
   { timestamps: true }
 );

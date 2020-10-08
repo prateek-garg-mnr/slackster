@@ -6,51 +6,71 @@ const auth = require("../middleware/auth");
 // config keys
 const keys = require("../config/keys");
 
+var async = require("async");
+
+const slackInstance = async (token, requirement, param = {}) => {
+  // slack web client instance
+  const web = new WebClient(token);
+  // required data type from slack
+  // conversationlist
+  if (requirement === "conversationList") {
+    const list = await web.conversations.list({
+      types: `public_channel,private_channel,im`,
+    });
+    return list;
+  }
+  // user details from id
+  if (requirement === "userDetail") {
+    for (let i = 0; i < param.list.length; i++) {
+      console.log(param.list[i].userId);
+      if (param.list[i].userId) {
+        const userDetail = await web.users.info({
+          user: param.list[i].userId,
+        });
+        param.list[i].userName = userDetail.user.name;
+      }
+    }
+    return param.list;
+  }
+};
+
 module.exports = (app) => {
   // conversation list of user
   app.get("/api/conversation-list", auth, async (req, res) => {
     try {
-      // slack web client instanve
-      const web = new WebClient(req.user.oauthToken);
-      // list of all the channels
-      const list = await web.conversations.list({
-        types: `public_channel,private_channel,im`,
+      // list of all the conversation
+      const list = await slackInstance(req.user.oauthToken, "conversationList");
+      // console.log("list", list);
+      // selecting required data from converation list
+      let conversationDataAll = await list.channels.map((channel) => {
+        if (channel.name) {
+          return {
+            conversationId: channel.id,
+            conversationName: channel.name,
+          };
+        } else if (channel.user) {
+          return {
+            conversationId: channel.id,
+            userId: channel.user,
+          };
+        }
+        return;
       });
-      // select only name and id of channel
-      let channelData = await list.channels
-        .map((channel) => {
-          if (channel.name) {
-            return { channelId: channel.id, channelName: channel.name };
-          }
-          return;
-        })
-        .filter((channel) => {
-          if (channel !== null) {
-            return channel;
-          }
-        });
-
-      const personalDM = await list.channels
-        .map((channel) => {
-          if (!channel.name) {
-            return { channelId: channel.id };
-          }
-        })
-        .filter((channel) => {
-          if (channel !== null) {
-            return channel;
-          }
-        });
-      console.log(personalDM);
+      // list of conversations with user's names (Direct Messages)
+      const conversationData = await slackInstance(
+        req.user.oauthToken,
+        "userDetail",
+        {
+          list: conversationDataAll,
+        }
+      );
 
       // save channel list on user
-      req.user.userChannels = channelData;
-      // save personal dm list on user
-      req.user.personalDM = personalDM;
+      req.user.userConversations = conversationData;
       // save user
       await req.user.save();
       // response
-      res.send({ channellist: channelData, dmList: personalDM });
+      res.send({ conversationData: conversationData });
     } catch (e) {
       // error
       console.log("Conversation List error: ", e);
