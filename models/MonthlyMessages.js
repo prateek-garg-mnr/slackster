@@ -19,7 +19,7 @@ const monthlyMessageSchema = new Schema(
 );
 
 const monthlyMessageSchema = mongoose.model(
-  "weeklyMessageSchema",
+  "monthlyMessageSchema",
   monthlyMessageSchema
 );
 

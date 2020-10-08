@@ -14,6 +14,10 @@ const messageSchema = new Schema(
       required: true,
       enum: ["weeklyMessages", "monthlyMessages"],
     },
+    user: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "user",
+    },
   },
   {
     timestamps: true,
