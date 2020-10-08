@@ -1,38 +1,10 @@
 const axios = require("axios");
-// slack web client
-const { WebClient } = require("@slack/web-api");
 // auth middleware
 const auth = require("../middleware/auth");
 // config keys
 const keys = require("../config/keys");
-
-var async = require("async");
-
-const slackInstance = async (token, requirement, param = {}) => {
-  // slack web client instance
-  const web = new WebClient(token);
-  // required data type from slack
-  // conversationlist
-  if (requirement === "conversationList") {
-    const list = await web.conversations.list({
-      types: `public_channel,private_channel,im`,
-    });
-    return list;
-  }
-  // user details from id
-  if (requirement === "userDetail") {
-    for (let i = 0; i < param.list.length; i++) {
-      console.log(param.list[i].userId);
-      if (param.list[i].userId) {
-        const userDetail = await web.users.info({
-          user: param.list[i].userId,
-        });
-        param.list[i].userName = userDetail.user.name;
-      }
-    }
-    return param.list;
-  }
-};
+// slack instance
+const slackInstance = require("../services/slackService");
 
 module.exports = (app) => {
   // conversation list of user
