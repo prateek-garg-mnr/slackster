@@ -23,7 +23,7 @@ const particularDateMessageSchema = new Schema(
 );
 
 const instantMessage = mongoose.model(
-  "particularDateMessage",
+  "particularDate",
   particularDateMessageSchema
 );
 

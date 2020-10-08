@@ -12,7 +12,12 @@ const messageSchema = new Schema(
     type: {
       type: String,
       required: true,
-      enum: ["weeklyMessages", "monthlyMessages"],
+      enum: [
+        "weeklyMessages",
+        "monthlyMessages",
+        "particularDate",
+        "instantMessage",
+      ],
     },
     user: {
       type: mongoose.Schema.Types.ObjectId,
