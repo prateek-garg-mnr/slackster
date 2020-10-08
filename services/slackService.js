@@ -20,7 +20,7 @@ const slackInstance = async (token, requirement, param = {}) => {
         const userDetail = await web.users.info({
           user: param.list[i].userId,
         });
-        param.list[i].userName = userDetail.user.name;
+        param.list[i].conversationName = userDetail.user.name;
       }
     }
     return param.list;
