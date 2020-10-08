@@ -5,6 +5,9 @@ const auth = require("../middleware/auth");
 const keys = require("../config/keys");
 // slack instance
 const slackInstance = require("../services/slackService");
+// db instances
+const Message = require("../models/Messages");
+const InstantMessage = require("../models/InstantMessage");
 
 module.exports = (app) => {
   // conversation list of user
@@ -46,10 +49,6 @@ module.exports = (app) => {
     } catch (e) {
       // error
       console.log("Conversation List error: ", e);
-      // error from axios
-      if (e.data.ok === false) {
-        return res.status(400).send({ message: "invalid request" });
-      }
       // other server error
       res.status(500).send({ message: "Internal Server Error" });
     }
@@ -59,23 +58,45 @@ module.exports = (app) => {
   app.post("/api/send-message", auth, async (req, res) => {
     try {
       let token;
+      let isBot;
       // data from request's body
-      const { message, channelId, type } = req.body;
+      const { message, channelId, userType, messageType, fromApp } = req.body;
       // decide which token to use on the basis of type
-      if (type === "user") {
+      if (userType === "user") {
         token = req.user.oauthToken;
+        isBot = false;
       } else {
         token = keys.slackBotToken;
+        isBot = true;
       }
-      // slack client
-      const web = new WebClient(token);
+
       // post the message instantly
-      const response = await web.chat.postMessage({
-        text: message,
-        channel: channelId,
-      });
+      const response = await slackInstance(
+        req.user.oauthToken,
+        "sendInstantMessage",
+        {
+          text: message,
+          channel: channelId,
+        }
+      );
+
+      if (response.response === true && fromApp === true) {
+        const instantMessage = new InstantMessage({
+          text: message,
+          channelId,
+        });
+        await instantMessage.save();
+        const messageMain = new Message({
+          message: instantMessage._id,
+          type: messageType,
+          user: req.user._id,
+          isBot,
+        });
+        await messageMain.save();
+      }
+
       // response
-      res.send({ response });
+      res.send(response);
     } catch (e) {
       // error
       console.log("Send Instant Message error: ", e);

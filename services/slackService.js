@@ -25,6 +25,18 @@ const slackInstance = async (token, requirement, param = {}) => {
     }
     return param.list;
   }
+
+  if (requirement === "sendInstantMessage") {
+    const response = await web.chat.postMessage({
+      text: param.text,
+      channel: param.channel,
+    });
+    if (response.ok === true) {
+      return { response: response.ok };
+    } else {
+      throw new Error("error in instant message");
+    }
+  }
 };
 
 module.exports = slackInstance;

@@ -23,6 +23,10 @@ const messageSchema = new Schema(
       type: mongoose.Schema.Types.ObjectId,
       ref: "user",
     },
+    isBot: {
+      type: Boolean,
+      required: true,
+    },
   },
   {
     timestamps: true,
