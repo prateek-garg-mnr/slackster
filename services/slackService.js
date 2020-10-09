@@ -15,7 +15,6 @@ const slackInstance = async (token, requirement, param = {}) => {
   // user details from id
   if (requirement === "userDetail") {
     for (let i = 0; i < param.list.length; i++) {
-      console.log(param.list[i].userId);
       if (param.list[i].userId) {
         const userDetail = await web.users.info({
           user: param.list[i].userId,

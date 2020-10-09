@@ -60,7 +60,14 @@ module.exports = (app) => {
       let token;
       let isBot;
       // data from request's body
-      const { message, channelId, userType, messageType, fromApp } = req.body;
+      const {
+        message,
+        channelId,
+        userType,
+        messageType,
+        date,
+        fromApp,
+      } = req.body;
       // decide which token to use on the basis of type
       if (userType === "user") {
         token = req.user.oauthToken;
@@ -71,14 +78,10 @@ module.exports = (app) => {
       }
 
       // post the message instantly
-      const response = await slackInstance(
-        req.user.oauthToken,
-        "sendInstantMessage",
-        {
-          text: message,
-          channel: channelId,
-        }
-      );
+      const response = await slackInstance(token, "sendInstantMessage", {
+        text: message,
+        channel: channelId,
+      });
 
       if (response.response === true && fromApp === true) {
         const instantMessage = new InstantMessage({
