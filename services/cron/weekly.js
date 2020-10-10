@@ -6,7 +6,7 @@ const WeeklyMessages = require("../../models/WeeklyMessages");
 
 const slackInstance = require("../slackService");
 // 0 0 * * *
-module.exports = cron.schedule("* * * * *", async () => {
+module.exports = cron.schedule("0 0 * * *", async () => {
   // find all weekly messages
   const messages = await Messages.find({
     type: "weeklyMessages",
