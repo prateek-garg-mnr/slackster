@@ -1,4 +1,3 @@
-const axios = require("axios");
 const moment = require("moment");
 // auth middleware
 const auth = require("../middleware/auth");
@@ -12,6 +11,7 @@ const InstantMessage = require("../models/InstantMessage");
 const ParticularDateMessage = require("../models/particularDateMessage");
 const MonthlyMessages = require("../models/MonthlyMessages");
 const WeeklyMessages = require("../models/WeeklyMessages");
+const MinuteMessages = require("../models/Minute");
 module.exports = (app) => {
   // conversation list of user
   app.get("/api/conversation-list", auth, async (req, res) => {
@@ -185,6 +185,26 @@ module.exports = (app) => {
           await weeklyMessages.save();
           const messageMain = new Message({
             message: weeklyMessages._id,
+            type: messageType,
+            user: req.user._id,
+            isBot,
+          });
+          await messageMain.save();
+        }
+      }
+      // schedule minute
+      else if (messageType === "minuteMessages") {
+        const nextDate = moment(time).add(5, "minute").format();
+        if (response.response === true) {
+          const minuteMessages = new MinuteMessages({
+            text: message,
+            channelId,
+            date: time,
+            nextDate,
+          });
+          await minuteMessages.save();
+          const messageMain = new Message({
+            message: minuteMessages._id,
             type: messageType,
             user: req.user._id,
             isBot,
