@@ -5,8 +5,8 @@ const keys = require("../../config/keys");
 const MonthlyMessages = require("../../models/MonthlyMessages");
 
 const slackInstance = require("../slackService");
-// 0 0 * * *
-module.exports = cron.schedule("* * * * *", async () => {
+// 0 0 * * 0
+module.exports = cron.schedule("0 0 * * 0", async () => {
   // find all monthly messages
   const messages = await Messages.find({
     type: "monthlyMessages",
