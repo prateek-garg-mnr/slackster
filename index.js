@@ -31,8 +31,10 @@ require("./routers/slackMessages")(app);
 // for weekly messages
 require("./services/cron/weeklyMessages");
 // for monthly messages
-require("./services/cron/monthly");
-// test
+require("./services/cron/monthlyMessages");
+// for daily messages
+require("./services/cron/dailyMessages");
+// test minute cron-job
 // require("./services/cron/minute");
 
 // PORT
