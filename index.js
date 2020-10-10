@@ -28,9 +28,12 @@ require("./routers/authRoutes")(app);
 require("./routers/slackMessages")(app);
 
 // cron-job
+// for weekly messages
 require("./services/cron/weeklyMessages");
+// for monthly messages
 require("./services/cron/monthly");
-require("./services/cron/minute");
+// test
+// require("./services/cron/minute");
 
 // PORT
 const PORT = process.env.PORT || 5000;
