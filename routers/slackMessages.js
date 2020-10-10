@@ -184,17 +184,17 @@ module.exports = (app) => {
         }
       }
       // minute wise schedule instance
-      else if (messageType === "minuteMessages") {
-        const nextDate = moment(time).add(5, "minute").format();
-        if (response.response === true) {
-          newMessage = new MinuteMessages({
-            text: message,
-            channelId,
-            date: time,
-            nextDate,
-          });
-        }
-      }
+      // else if (messageType === "minuteMessages") {
+      //   const nextDate = moment(time).add(5, "minute").format();
+      //   if (response.response === true) {
+      //     newMessage = new MinuteMessages({
+      //       text: message,
+      //       channelId,
+      //       date: time,
+      //       nextDate,
+      //     });
+      //   }
+      // }
       // save instance
       await newMessage.save();
       // save message detail
