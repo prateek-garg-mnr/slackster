@@ -32,7 +32,7 @@ const slackInstance = async (token, requirement, param = {}) => {
       channel,
     });
     if (response.ok === true) {
-      console.log(response);
+      // console.log(response);
       return { response: response.ok };
     } else {
       throw new Error("error in instant message");
@@ -47,7 +47,7 @@ const slackInstance = async (token, requirement, param = {}) => {
       post_at,
     });
     if (response.ok === true) {
-      console.log(response);
+      // console.log(response);
       return { response: response.ok };
     } else {
       throw new Error("error in schedule messaging");

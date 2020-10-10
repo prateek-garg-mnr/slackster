@@ -28,7 +28,7 @@ require("./routers/authRoutes")(app);
 require("./routers/slackMessages")(app);
 
 // cron-job
-require("./services/cron/weekly");
+require("./services/cron/weeklyMessages");
 require("./services/cron/monthly");
 require("./services/cron/minute");
 
