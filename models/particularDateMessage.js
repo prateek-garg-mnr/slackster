@@ -22,7 +22,7 @@ const particularDateMessageSchema = new Schema(
   { timestamps: true }
 );
 
-const instantMessage = mongoose.model(
+const particularDateMessage = mongoose.model(
   "particularDate",
   particularDateMessageSchema
 );
