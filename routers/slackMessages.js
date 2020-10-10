@@ -115,6 +115,7 @@ module.exports = (app) => {
     try {
       let token;
       let isBot;
+      let newMessage;
       // data from request's body
       const { message, channelId, type, time, messageType } = req.body;
       // decide which token to use on the basis of type
@@ -134,85 +135,62 @@ module.exports = (app) => {
         channel: channelId,
         post_at: messageScheduleTime,
       });
-      // schedule for single date
+      // single date schedule instance
       if (messageType === "particularDate") {
         if (response.response === true) {
-          const particularDate = new ParticularDateMessage({
+          newMessage = new ParticularDateMessage({
             text: message,
             channelId,
             date: time,
           });
-          await particularDate.save();
-          const messageMain = new Message({
-            message: particularDate._id,
-            type: messageType,
-            user: req.user._id,
-            isBot,
-          });
-          await messageMain.save();
         }
       }
-      // schedule monthly
+      // monthly schedule instance
       else if (messageType === "monthlyMessages") {
         const nextDate = moment(time).add(1, "month").format();
         if (response.response === true) {
-          const monthlyMessages = new MonthlyMessages({
+          newMessage = new MonthlyMessages({
             text: message,
             channelId,
             date: time,
             nextDate,
           });
-          await monthlyMessages.save();
-          const messageMain = new Message({
-            message: monthlyMessages._id,
-            type: messageType,
-            user: req.user._id,
-            isBot,
-          });
-          await messageMain.save();
         }
       }
-      // schedule week
+      // weekly schedule instance
       else if (messageType === "weeklyMessages") {
         const nextDate = moment(time).add(1, "week").format();
         if (response.response === true) {
-          const weeklyMessages = new WeeklyMessages({
+          newMessage = new WeeklyMessages({
             text: message,
             channelId,
             date: time,
             nextDate,
           });
-          await weeklyMessages.save();
-          const messageMain = new Message({
-            message: weeklyMessages._id,
-            type: messageType,
-            user: req.user._id,
-            isBot,
-          });
-          await messageMain.save();
         }
       }
-      // schedule minute
+      // minute wise schedule instance
       else if (messageType === "minuteMessages") {
         const nextDate = moment(time).add(5, "minute").format();
         if (response.response === true) {
-          const minuteMessages = new MinuteMessages({
+          newMessage = new MinuteMessages({
             text: message,
             channelId,
             date: time,
             nextDate,
           });
-          await minuteMessages.save();
-          const messageMain = new Message({
-            message: minuteMessages._id,
-            type: messageType,
-            user: req.user._id,
-            isBot,
-          });
-          await messageMain.save();
         }
       }
-
+      // save instance
+      await newMessage.save();
+      // save message detail
+      const messageMain = new Message({
+        message: newMessage._id,
+        type: messageType,
+        user: req.user._id,
+        isBot,
+      });
+      await messageMain.save();
       // response
       res.send({ response });
     } catch (e) {
