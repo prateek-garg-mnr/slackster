@@ -1,4 +1,5 @@
 const axios = require("axios");
+const moment = require("moment");
 // auth middleware
 const auth = require("../middleware/auth");
 // config keys
@@ -9,7 +10,7 @@ const slackInstance = require("../services/slackService");
 const Message = require("../models/Messages");
 const InstantMessage = require("../models/InstantMessage");
 const ParticularDateMessage = require("../models/particularDateMessage");
-
+const MonthlyMessages = require("../models/MonthlyMessages");
 module.exports = (app) => {
   // conversation list of user
   app.get("/api/conversation-list", auth, async (req, res) => {
@@ -132,6 +133,7 @@ module.exports = (app) => {
         channel: channelId,
         post_at: messageScheduleTime,
       });
+      // schedule for single date
       if (messageType === "particularDate") {
         if (response.response === true) {
           const particularDate = new ParticularDateMessage({
@@ -148,6 +150,30 @@ module.exports = (app) => {
           });
           await messageMain.save();
         }
+      }
+      // schedule monthly
+      else if (messageType === "monthlyMessages") {
+        const currentMonth = moment().month();
+        const nextDate = moment(time)
+          .set("month", currentMonth + 1)
+          .format();
+        if (response.response === true) {
+          const monthlyMessages = new MonthlyMessages({
+            text: message,
+            channelId,
+            date: time,
+            nextDate,
+          });
+          await monthlyMessages.save();
+          const messageMain = new Message({
+            message: monthlyMessages._id,
+            type: messageType,
+            user: req.user._id,
+            isBot,
+          });
+          await messageMain.save();
+        }
+      } else if (messageType === "weeklyMessages") {
       }
 
       // response
