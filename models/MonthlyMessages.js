@@ -26,9 +26,6 @@ const monthlyMessageSchema = new Schema(
   { timestamps: true }
 );
 
-const monthlyMessageSchema = mongoose.model(
-  "monthlyMessage",
-  monthlyMessageSchema
-);
+const monthlyMessage = mongoose.model("monthlyMessage", monthlyMessageSchema);
 
 module.exports = monthlyMessage;
