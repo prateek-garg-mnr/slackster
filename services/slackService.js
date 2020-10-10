@@ -24,16 +24,33 @@ const slackInstance = async (token, requirement, param = {}) => {
     }
     return param.list;
   }
-
+  // send instant message
   if (requirement === "sendInstantMessage") {
+    const { text, channel } = param;
     const response = await web.chat.postMessage({
-      text: param.text,
-      channel: param.channel,
+      text,
+      channel,
     });
     if (response.ok === true) {
+      console.log(response);
       return { response: response.ok };
     } else {
       throw new Error("error in instant message");
+    }
+  }
+  // schedule message
+  if (requirement === "sendScheduleMessage") {
+    const { text, channel, post_at } = param;
+    const response = await web.chat.scheduleMessage({
+      text,
+      channel,
+      post_at,
+    });
+    if (response.ok === true) {
+      console.log(response);
+      return { response: response.ok };
+    } else {
+      throw new Error("error in schedule messaging");
     }
   }
 };
