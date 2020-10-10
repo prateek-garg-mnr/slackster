@@ -6,7 +6,7 @@ const keys = require("../config/keys");
 // slack instance
 const slackInstance = require("../services/slackService");
 // db instances
-const Message = require("../models/Messages");
+const Message = require("../models/Message");
 const InstantMessage = require("../models/InstantMessage");
 const ParticularDateMessage = require("../models/particularDateMessage");
 const MonthlyMessages = require("../models/MonthlyMessages");
