@@ -7,7 +7,7 @@ const MonthlyMessages = require("../../models/MonthlyMessages");
 const slackInstance = require("../slackService");
 // 0 0 * * *
 module.exports = cron.schedule("* * * * *", async () => {
-  // find all weekly messages
+  // find all monthly messages
   const messages = await Messages.find({
     type: "monthlyMessages",
   }).populate("message user");
@@ -22,7 +22,7 @@ module.exports = cron.schedule("* * * * *", async () => {
     let nextDate = moment(messages[i].message.nextDate);
 
     // scheduling messages one day before
-    // if difference between current and nextDate = 1 then schedule
+    // if nextDate lies in the next seven days
     if (nextDate.isBetween(currentDate, endDate)) {
       // User or bot
       if (messages[i].isBot === true) {
