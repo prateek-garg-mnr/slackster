@@ -18,6 +18,10 @@ const weeklyMessageSchema = new Schema(
       type: Date,
       required: true,
     },
+    nextDate: {
+      type: Date,
+      required: true,
+    },
   },
   {
     timestamps: true,
