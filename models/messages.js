@@ -18,6 +18,7 @@ const messageSchema = new Schema(
         "particularDate",
         "instantMessage",
         "minuteMessages",
+        "dailyMessages",
       ],
     },
     user: {

@@ -11,6 +11,8 @@ const InstantMessage = require("../models/InstantMessage");
 const ParticularDateMessage = require("../models/particularDateMessage");
 const MonthlyMessages = require("../models/MonthlyMessages");
 const WeeklyMessages = require("../models/WeeklyMessages");
+const DailyMessages = require("../models/DailyMessages");
+
 const MinuteMessages = require("../models/Minute");
 module.exports = (app) => {
   // conversation list of user
@@ -162,6 +164,18 @@ module.exports = (app) => {
         const nextDate = moment(time).add(1, "week").format();
         if (response.response === true) {
           newMessage = new WeeklyMessages({
+            text: message,
+            channelId,
+            date: time,
+            nextDate,
+          });
+        }
+      }
+      // Daily schedule instance
+      else if (messageType === "dailyMessages") {
+        const nextDate = moment(time).add(1, "day").format();
+        if (response.response === true) {
+          newMessage = new DailyMessages({
             text: message,
             channelId,
             date: time,
