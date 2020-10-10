@@ -8,6 +8,7 @@ const slackInstance = require("../services/slackService");
 // db instances
 const Message = require("../models/Messages");
 const InstantMessage = require("../models/InstantMessage");
+const ParticularDateMessage = require("../models/particularDateMessage");
 
 module.exports = (app) => {
   // conversation list of user
@@ -59,15 +60,9 @@ module.exports = (app) => {
     try {
       let token;
       let isBot;
+      let response;
       // data from request's body
-      const {
-        message,
-        channelId,
-        userType,
-        messageType,
-        date,
-        fromApp,
-      } = req.body;
+      const { message, channelId, userType, messageType, date } = req.body;
       // decide which token to use on the basis of type
       if (userType === "user") {
         token = req.user.oauthToken;
@@ -78,28 +73,29 @@ module.exports = (app) => {
       }
 
       // post the message instantly
-      const response = await slackInstance(token, "sendInstantMessage", {
-        text: message,
-        channel: channelId,
-      });
-
-      if (response.response === true && fromApp === true) {
-        const instantMessage = new InstantMessage({
+      if (messageType === "instantMessage") {
+        response = await slackInstance(token, "sendInstantMessage", {
           text: message,
-          channelId,
+          channel: channelId,
         });
-        await instantMessage.save();
-        const messageMain = new Message({
-          message: instantMessage._id,
-          type: messageType,
-          user: req.user._id,
-          isBot,
-        });
-        await messageMain.save();
-      }
 
+        if (response.response === true) {
+          const instantMessage = new InstantMessage({
+            text: message,
+            channelId,
+          });
+          await instantMessage.save();
+          const messageMain = new Message({
+            message: instantMessage._id,
+            type: messageType,
+            user: req.user._id,
+            isBot,
+          });
+          await messageMain.save();
+        }
+      }
       // response
-      res.send(response);
+      res.send({ response });
     } catch (e) {
       // error
       console.log("Send Instant Message error: ", e);
@@ -116,33 +112,50 @@ module.exports = (app) => {
   app.post("/api/schedule-message", auth, async (req, res) => {
     try {
       let token;
+      let isBot;
       // data from request's body
-      const { message, channelId, type, time } = req.body;
+      const { message, channelId, type, time, messageType } = req.body;
       // decide which token to use on the basis of type
       if (type === "user") {
         token = req.user.oauthToken;
+        isBot = false;
       } else {
         token = keys.slackBotToken;
+        isBot = true;
       }
       // set schedule time
-      const messageScheduleTime = new Date(time).getTime();
-      // slack client
-      const web = new WebClient(token);
+      const messageScheduleTime = new Date(time).getTime() / 1000;
+
       // schedule message to be sent
-      const response = await web.chat.scheduleMessage({
+      let response = await slackInstance(token, "sendScheduleMessage", {
         text: message,
         channel: channelId,
-        post_at: messageScheduleTime / 1000,
+        post_at: messageScheduleTime,
       });
+      if (messageType === "particularDate") {
+        if (response.response === true) {
+          const particularDate = new ParticularDateMessage({
+            text: message,
+            channelId,
+            date: time,
+          });
+          await particularDate.save();
+          const messageMain = new Message({
+            message: particularDate._id,
+            type: messageType,
+            user: req.user._id,
+            isBot,
+          });
+          await messageMain.save();
+        }
+      }
+
       // response
       res.send({ response });
     } catch (e) {
       // error
       console.log("Schedule Message error: ", e);
-      // error from axios
-      if (e.data.ok === false) {
-        return res.status(400).send({ message: "invalid request" });
-      }
+
       // other server error
       res.status(500).send({ message: "Internal Server Error" });
     }
