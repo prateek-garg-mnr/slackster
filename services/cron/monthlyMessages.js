@@ -48,7 +48,7 @@ module.exports = cron.schedule("0 0 * * 0", async () => {
       console.log(response);
       // if successfully sent
       if (response.response === true) {
-        // find message in weekly collection
+        // find message in month collection
         const message = await MonthlyMessages.findById(messages[i].message._id);
         // update date
         message.date = nextDate.format();
