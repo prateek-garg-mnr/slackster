@@ -61,16 +61,3 @@ module.exports = cron.schedule("* * * * *", async () => {
     }
   }
 });
-
-// data
-// let token = messages[i].user.oauthToken;
-//       let text = messages[i].message.text;
-//       let channel = messages[i].message.channelId;
-//       let post_at = moment(messages[i].message.nextDate).valueOf() / 1000;
-
-// schedule message
-// let response = await slackInstance(token, "sendScheduleMessage", {
-//   text,
-//   channel,
-//   post_at,
-// });
