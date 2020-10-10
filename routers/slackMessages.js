@@ -11,6 +11,7 @@ const Message = require("../models/Messages");
 const InstantMessage = require("../models/InstantMessage");
 const ParticularDateMessage = require("../models/particularDateMessage");
 const MonthlyMessages = require("../models/MonthlyMessages");
+const WeeklyMessages = require("../models/WeeklyMessages");
 module.exports = (app) => {
   // conversation list of user
   app.get("/api/conversation-list", auth, async (req, res) => {
@@ -153,10 +154,7 @@ module.exports = (app) => {
       }
       // schedule monthly
       else if (messageType === "monthlyMessages") {
-        const currentMonth = moment().month();
-        const nextDate = moment(time)
-          .set("month", currentMonth + 1)
-          .format();
+        const nextDate = moment(time).add(1, "month").format();
         if (response.response === true) {
           const monthlyMessages = new MonthlyMessages({
             text: message,
@@ -173,7 +171,26 @@ module.exports = (app) => {
           });
           await messageMain.save();
         }
-      } else if (messageType === "weeklyMessages") {
+      }
+      // schedule week
+      else if (messageType === "weeklyMessages") {
+        const nextDate = moment(time).add(1, "week").format();
+        if (response.response === true) {
+          const weeklyMessages = new WeeklyMessages({
+            text: message,
+            channelId,
+            date: time,
+            nextDate,
+          });
+          await weeklyMessages.save();
+          const messageMain = new Message({
+            message: weeklyMessages._id,
+            type: messageType,
+            user: req.user._id,
+            isBot,
+          });
+          await messageMain.save();
+        }
       }
 
       // response
