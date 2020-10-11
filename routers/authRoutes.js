@@ -15,7 +15,15 @@ module.exports = (app) => {
   app.post("/api/slack-token", async (req, res) => {
     try {
       // code from slack
-      const { code } = req.body;
+      const { code, appType } = req.body;
+      let redirect_uri;
+      console.log(req.body);
+      if (appType === "webApp") {
+        redirect_uri = keys.redirect_uri;
+      } else if (appType === "native") {
+        redirect_uri = keys.native_redirect_uri;
+      }
+      console.log(redirect_uri);
       // exchange code for token
       const response = await axios.get(
         `https://slack.com/api/oauth.v2.access?code=${code}&client_id=${keys.slackClientId}&client_secret=${keys.slackClientSecret}&redirect_uri=${keys.redirect_uri}`
