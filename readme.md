@@ -18,3 +18,6 @@
 Postman Link :-
 
 ##### https://www.getpostman.com/collections/178a7efb5ca0953e640e
+
+Base URL :- https://slacksterpoc.herokuapp.com
+Live URL :- https://slackster-web.vercel.app/
