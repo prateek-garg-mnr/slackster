@@ -35,7 +35,7 @@ require("./services/cron/monthlyMessages");
 // for daily messages
 require("./services/cron/dailyMessages");
 // test minute cron-job
-// require("./services/cron/minute");
+require("./services/cron/minute");
 
 // PORT
 const PORT = process.env.PORT || 5000;

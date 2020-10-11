@@ -1,6 +1,6 @@
 const cron = require("node-cron");
 const moment = require("moment");
-const Messages = require("../../models/Messages");
+const Messages = require("../../models/Message");
 const MinuteMessages = require("../../models/Minute");
 const keys = require("../../config/keys");
 const slackInstance = require("../slackService");
