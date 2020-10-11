@@ -71,7 +71,7 @@ module.exports = (app) => {
       if (userType === "user") {
         token = req.user.oauthToken;
         isBot = false;
-      } else {
+      } else if (userType === "bot") {
         token = keys.slackBotToken;
         isBot = true;
       }
@@ -119,15 +119,17 @@ module.exports = (app) => {
       let isBot;
       let newMessage;
       // data from request's body
-      const { message, channelId, type, time, messageType } = req.body;
+      const { message, channelId, userType, time, messageType } = req.body;
+      console.log(req.body);
       // decide which token to use on the basis of type
-      if (type === "user") {
+      if (userType === "user") {
         token = req.user.oauthToken;
         isBot = false;
-      } else {
+      } else if (userType === "bot") {
         token = keys.slackBotToken;
         isBot = true;
       }
+      console.log(token);
       // set schedule time
       const messageScheduleTime = new Date(time).getTime() / 1000;
 
@@ -184,17 +186,17 @@ module.exports = (app) => {
         }
       }
       // minute wise schedule instance
-      // else if (messageType === "minuteMessages") {
-      //   const nextDate = moment(time).add(5, "minute").format();
-      //   if (response.response === true) {
-      //     newMessage = new MinuteMessages({
-      //       text: message,
-      //       channelId,
-      //       date: time,
-      //       nextDate,
-      //     });
-      //   }
-      // }
+      else if (messageType === "minuteMessages") {
+        const nextDate = moment(time).add(5, "minute").format();
+        if (response.response === true) {
+          newMessage = new MinuteMessages({
+            text: message,
+            channelId,
+            date: time,
+            nextDate,
+          });
+        }
+      }
       // save instance
       await newMessage.save();
       // save message detail
@@ -210,7 +212,10 @@ module.exports = (app) => {
     } catch (e) {
       // error
       console.log("Schedule Message error: ", e);
-
+      // error from axios
+      if (e.data.ok === false) {
+        return res.status(400).send({ message: "invalid request" });
+      }
       // other server error
       res.status(500).send({ message: "Internal Server Error" });
     }
