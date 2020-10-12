@@ -12,7 +12,7 @@ const slackInstance = async (token, requirement, param = {}) => {
     });
     return list;
   }
-  // user details from id
+  // user details
   if (requirement === "userDetail") {
     for (let i = 0; i < param.list.length; i++) {
       if (param.list[i].userId) {
@@ -23,6 +23,12 @@ const slackInstance = async (token, requirement, param = {}) => {
       }
     }
     return param.list;
+  }
+  if (requirement === "userDetailOnce") {
+    const userDetail = await web.users.info({
+      user: param.id,
+    });
+    return userDetail;
   }
   // send instant message
   if (requirement === "sendInstantMessage") {
