@@ -10,6 +10,8 @@ const generateJWT = require("../services/generateJWT");
 // auth middleware
 const auth = require("../middleware/auth");
 
+// slack instance
+const slackInstance = require("../services/slackService");
 module.exports = (app) => {
   // Register user
   app.post("/api/slack-token", async (req, res) => {
@@ -17,33 +19,35 @@ module.exports = (app) => {
       // code from slack
       const { code, appType } = req.body;
       let redirect_uri;
-      console.log(req.body);
+
       if (appType === "webApp") {
         redirect_uri = keys.redirect_uri;
       } else if (appType === "native") {
         redirect_uri = encodeURIComponent(keys.native_redirect_uri);
       }
-      // console.log(redirect_uri);
-      // console.log(
-      //   `https://slack.com/api/oauth.v2.access?code=${code}&client_id=${keys.slackClientId}&client_secret=${keys.slackClientSecret}&redirect_uri=${redirect_uri}`
-      // );
-      // exchange code for token
+
       const response = await axios.get(
         `https://slack.com/api/oauth.v2.access?code=${code}&client_id=${keys.slackClientId}&client_secret=${keys.slackClientSecret}&redirect_uri=${redirect_uri}`
       );
-      // console.log(response);
+
       if (response.data.authed_user === undefined) {
         return res.status(400).send(response.data);
       }
+
       // slack oauth token
       const access_token = response.data.authed_user.access_token;
-      // clack web client initialization
-      const web = new WebClient(access_token);
+      // user's slack id
+      const id = response.data.authed_user.id;
+
       // fetching user's data
-      const userData = await web.users.identity();
-      const { name, email, id, image_512 } = userData.user;
+      const userData = await slackInstance(access_token, "userDetailOnce", {
+        id,
+      });
+
+      const name = userData.user.name;
+      const image_512 = userData.user.profile.image_512;
       // checking if the user exists
-      const existingUser = await User.findOne({ slackId: id, email });
+      const existingUser = await User.findOne({ slackId: id });
       // if user exists return that user
       if (existingUser) {
         // update user's oauth token
@@ -58,7 +62,6 @@ module.exports = (app) => {
       // creating new user's instance
       const user = new User({
         name: name,
-        email: email,
         slackId: id,
         oauthToken: access_token,
         profilePicture: image_512,
@@ -70,7 +73,7 @@ module.exports = (app) => {
       res.send({ token });
     } catch (e) {
       // log error
-      console.log("Token/ User Create API ERR:", e);
+      console.log("Token/ User Create API ERR:", e.data);
       res.status(500).send();
     }
   });
@@ -78,11 +81,14 @@ module.exports = (app) => {
   // Get User
   app.get("/api/user", auth, async (req, res) => {
     try {
-      // clack web client initialization
-      const web = new WebClient(req.user.oauthToken);
-      const response = await web.users.info({
-        user: req.user.slackId,
-      });
+      const response = await slackInstance(
+        req.user.oauthToken,
+        "userDetailOnce",
+        {
+          id: req.user.slackId,
+        }
+      );
+      console.log(response);
       const { id, name } = response.user;
       const { image_512 } = response.user.profile;
       req.user.slackId = id;
