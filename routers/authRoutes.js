@@ -26,7 +26,7 @@ module.exports = (app) => {
       console.log(redirect_uri);
       // exchange code for token
       const response = await axios.get(
-        `https://slack.com/api/oauth.v2.access?code=${code}&client_id=${keys.slackClientId}&client_secret=${keys.slackClientSecret}&redirect_uri=${keys.redirect_uri}`
+        `https://slack.com/api/oauth.v2.access?code=${code}&client_id=${keys.slackClientId}&client_secret=${keys.slackClientSecret}&redirect_uri=${redirect_uri}`
       );
       if (response.data.authed_user === undefined) {
         return res.status(400).send(response.data);
