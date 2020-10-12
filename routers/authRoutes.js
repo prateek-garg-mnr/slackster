@@ -21,13 +21,17 @@ module.exports = (app) => {
       if (appType === "webApp") {
         redirect_uri = keys.redirect_uri;
       } else if (appType === "native") {
-        redirect_uri = keys.native_redirect_uri;
+        redirect_uri = encodeURIComponent(keys.native_redirect_uri);
       }
-      console.log(redirect_uri);
+      // console.log(redirect_uri);
+      // console.log(
+      //   `https://slack.com/api/oauth.v2.access?code=${code}&client_id=${keys.slackClientId}&client_secret=${keys.slackClientSecret}&redirect_uri=${redirect_uri}`
+      // );
       // exchange code for token
       const response = await axios.get(
         `https://slack.com/api/oauth.v2.access?code=${code}&client_id=${keys.slackClientId}&client_secret=${keys.slackClientSecret}&redirect_uri=${redirect_uri}`
       );
+      // console.log(response);
       if (response.data.authed_user === undefined) {
         return res.status(400).send(response.data);
       }
