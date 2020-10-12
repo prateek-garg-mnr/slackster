@@ -5,7 +5,6 @@ const Schema = mongoose.Schema;
 const userSchema = new Schema(
   {
     name: String,
-    email: String,
     slackId: String,
     oauthToken: String,
     userConversations: Array,
